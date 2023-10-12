@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 import data from "../data";
 
-const PostItem = () => {
+const PostDetails = () => {
   const { id } = useParams();
   const [postData, setPostData] = useState(null);
 
@@ -26,4 +26,4 @@ const PostItem = () => {
   );
 };
 
-export default PostItem;
+export default PostDetails;
