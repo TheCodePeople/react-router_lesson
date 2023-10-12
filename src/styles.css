@@ -25,3 +25,13 @@ nav ul {
   list-style: none;
   gap: 1rem;
 }
+
+.posts-container {
+  font-size: 20px;
+}
+
+.post-item a {
+  cursor: pointer;
+  text-decoration: none;
+  color: black;
+}
