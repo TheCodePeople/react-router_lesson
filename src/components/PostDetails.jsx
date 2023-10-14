@@ -1,27 +1,26 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import data from "../data";
+import { posts } from "../data";
 
 const PostDetails = () => {
   const { id } = useParams();
-  const [postData, setPostData] = useState(null);
+  const [postInfo, setPostInfo] = useState(null);
 
   useEffect(() => {
-    if (id) {
-      const post = data.find((post) => post.id === parseInt(id));
-      setPostData(post);
-    }
+    const result = posts.find((post) => post.id === parseInt(id));
+
+    setPostInfo(result);
   }, [id]);
 
-  if (!postData) {
+  if (!postInfo) {
     return;
   }
 
   return (
     <div>
-      <h3>{postData.name}</h3>
-      <p>{postData.content}</p>
+      <h3>{postInfo.name}</h3>
+      <p>{postInfo.content}</p>
     </div>
   );
 };

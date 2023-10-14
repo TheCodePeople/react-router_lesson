@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 
-import data from "../data";
+import { posts } from "../data";
 
 const Posts = () => {
   return (
     <div className="posts-container">
-      {data.map((post) => (
+      {posts.map((post) => (
         <ul className="post-item" key={post.id}>
           <li className="post-item">
             <Link key={post.id} to={`/posts/${post.id}`}>

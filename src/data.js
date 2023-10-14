@@ -1,4 +1,4 @@
-const data = [
+export const posts = [
   {
     name: "20 Facts",
     content: `Lorem ipsum dolor sit amet, consectetur adipisicing elit. Obcaecati
@@ -19,5 +19,3 @@ const data = [
     id: 3,
   },
 ];
-
-export default data;
