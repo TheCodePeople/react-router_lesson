@@ -38,9 +38,9 @@ in this lesson we're going to create a page that displays a list of posts and al
 
   We create a `Posts` component that displays a list of posts. It uses the `<Link />` component from react-router-dom to link to individual post details.
 
-  We import the `data.js` file that has an array of posts, so that we can loop over them and display them.
+  We import the posts data from the `data.js` file, so that we can loop over them and display them.
 
-  When We click on the `<Link />` component, we navigate the user to the post details page (`<PostItem />`), with the id of the post.
+  When We click on the `<Link />` component, we navigate the user to the post details page (`<PostDetails />`), with the id of the post.
 
   For example:
   `localhost:3000/posts/1`
@@ -48,7 +48,7 @@ in this lesson we're going to create a page that displays a list of posts and al
   ```jsx
   import { Link } from "react-router-dom";
 
-  import data from "../data";
+  import { posts } from "../data";
 
   const Posts = () => {
     return (
@@ -69,63 +69,60 @@ in this lesson we're going to create a page that displays a list of posts and al
   export default Posts;
   ```
 
-- **`PostItem`** Component
+- **`PostDetails`** Component
 
-  The `PostItem` component displays individual post details. It uses the `useParams` hook to retrieve the `id` parameter from the URL and fetches the corresponding post data.
+  The `PostDetails` component displays individual post details. It uses the `useParams` hook to retrieve the `id` parameter from the URL and fetches the corresponding post data.
 
   ```jsx
   import { useEffect, useState } from "react";
   import { useParams } from "react-router-dom";
 
-  import data from "../data";
+  import { posts } from "../data";
 
-  const PostItem = () => {
+  const PostDetails = () => {
     const { id } = useParams();
-    const [postData, setPostData] = useState(null);
+    const [postInfo, setPostInfo] = useState(null);
 
     useEffect(() => {
-      if (id) {
-        const post = data.find((post) => post.id === parseInt(id));
-        setPostData(post);
-      }
+      const result = posts.find((post) => post.id === parseInt(id));
+
+      setPostInfo(result);
     }, [id]);
 
-    if (!postData) {
-      return null;
+    if (!postInfo) {
+      return;
     }
 
     return (
       <div>
-        <h3>{postData.name}</h3>
-        <p>{postData.content}</p>
+        <h3>{postInfo.name}</h3>
+        <p>{postInfo.content}</p>
       </div>
     );
   };
 
-  export default PostItem;
+  export default PostDetails;
   ```
 
-  Inside the `useEffect` function we check if the `id` is not undefined.
+  Using the `useParams` hook, we retrieve the `id` of the post, Then We use the `useEffect` hook to find the post based on the `id`.
 
-  Then we search inside the data array to see if the `id` of the post exists, and then save it inside the `postData` state
-
-  We also check if the `postData` is null or undefined, and if so, we return null, to avoid crashing the application.
+  We also check if the `postData` is null or undefined, and if so, we return without rendering anything, to avoid crashing the application.
 
 - `App` Component
 
-  We include the `Posts` & `PostItems` to our routes.
+  We include the `Posts` & `PostDetails` to our routes.
 
   ```jsx
   <Routes>
     {/*  .... Other routes */}
     <Route path="/posts" element={<Posts />} />
-    <Route path="/posts/:id" element={<PostItem />} />
+    <Route path="/posts/:id" element={<PostDetails />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
   ```
 
   - `/posts` path displays the list of posts using the Posts component.
-  - `/posts/:id` path displays individual post details using the `PostItem` component, where `id` is the dynamic parameter.
+  - `/posts/:id` path displays individual post details using the `PostDetails` component, where `id` is the dynamic parameter.
 
 - `Navbar` Component
   Add the Posts link to our navbar component
