@@ -7,6 +7,8 @@ import Contact from "./components/Contact";
 import NotFound from "./components/NotFound";
 import Posts from "./components/Posts";
 import PostDetails from "./components/PostDetails";
+import Messages from "./components/Messages";
+import MessageDetails from "./components/MessageDetails";
 
 const App = () => {
   return (
@@ -18,6 +20,9 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/posts" element={<Posts />} />
         <Route path="/posts/:id" element={<PostDetails />} />
+        <Route path="/messages" element={<Messages />}>
+          <Route path="/messages/:id" element={<MessageDetails />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

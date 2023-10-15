@@ -30,8 +30,28 @@ nav ul {
   font-size: 20px;
 }
 
-.post-item a {
+.post-item a,
+.message-item {
   cursor: pointer;
   text-decoration: none;
   color: black;
+}
+.post-item a:hover,
+.message-item:hover {
+  color: aqua;
+}
+
+.messages-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.messages-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
 }

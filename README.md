@@ -1,144 +1,129 @@
-# React Router Hooks Lesson
+# React Router Outletsh Lesson
 
-in this lesson we're going to create a page that displays a list of posts and allows you to view individual post details. We'll cover the `useNavigate` and `useParams` hooks.
+React Router's outlets are a powerful feature that allows you to create nested routing structures, enabling you to define multiple levels of routes and render components at different levels of your application hierarchy. `Outlets` are primarily used in situations where you have a parent route that acts as a container for child routes.
+
+in this lesson, We are going to create a messages page where each user's message will be displayed on the same page, but each user's message will have its own distinct route.
 
 ## Components
 
-- **`NotFound`** Component
+- `<Messages/>` Component
 
-  We added a Return button to the `NotFound` component, the button will redirect the user to the home
-  page.
+  The Messages component serves as a container for displaying a list of messages.
 
-  In this case, instead of using the `<Link/>` component to navigate the user to a given path,
-  We use the `useNavigate` hook inside a function that handles the onClick event of the button.
+  It uses the `Outlet` component to render nested routes.
 
   ```jsx
-  import { useNavigate } from "react-router-dom";
+  import { Outlet, useNavigate } from "react-router-dom";
 
-  const NotFound = () => {
+  import { messages } from "../data";
+
+  const Messages = () => {
     const navigate = useNavigate();
 
-    const handleReturnButton = () => {
-      navigate("/");
+    const handleMessageClick = (id) => {
+      navigate(`/messages/${id}`);
     };
 
     return (
-      <div>
-        <h1>Not Found</h1>
-        <p>Page is not found!</p>
-        <button onClick={handleReturnButton}>Return</button>
-      </div>
-    );
-  };
-
-  export default NotFound;
-  ```
-
-- **`Posts`** Component
-
-  We create a `Posts` component that displays a list of posts. It uses the `<Link />` component from react-router-dom to link to individual post details.
-
-  We import the posts data from the `data.js` file, so that we can loop over them and display them.
-
-  When We click on the `<Link />` component, we navigate the user to the post details page (`<PostDetails />`), with the id of the post.
-
-  For example:
-  `localhost:3000/posts/1`
-
-  ```jsx
-  import { Link } from "react-router-dom";
-
-  import { posts } from "../data";
-
-  const Posts = () => {
-    return (
-      <div className="posts-container">
-        {data.map((post) => (
-          <ul className="post-item" key={post.id}>
-            <li className="post-item">
-              <Link key={post.id} to={`/posts/${post.id}`}>
-                {post.name}
-              </Link>
+      <div className="messages-container">
+        <ul className="messages-list">
+          {messages.map((message) => (
+            <li
+              className="message-item"
+              onClick={() => handleMessageClick(message.id)}
+            >
+              {message.user}
             </li>
-          </ul>
-        ))}
+          ))}
+        </ul>
+
+        <Outlet />
       </div>
     );
   };
 
-  export default Posts;
+  export default Messages;
   ```
 
-- **`PostDetails`** Component
+- `<MessageDetails/>` Component
 
-  The `PostDetails` component displays individual post details. It uses the `useParams` hook to retrieve the `id` parameter from the URL and fetches the corresponding post data.
+  The `MessageDetails` component displays the details of a specific message.
+
+  It uses the `useParams` hook to extract the message ID from the URL and fetches the corresponding message data.
 
   ```jsx
   import { useEffect, useState } from "react";
   import { useParams } from "react-router-dom";
 
-  import { posts } from "../data";
+  import { messages } from "../data";
 
-  const PostDetails = () => {
+  const MessageDetails = () => {
+    const [messageDetails, setMessageDetails] = useState(null);
     const { id } = useParams();
-    const [postInfo, setPostInfo] = useState(null);
 
     useEffect(() => {
-      const result = posts.find((post) => post.id === parseInt(id));
+      const currentMessage = messages.find(
+        (message) => message.id === parseInt(id)
+      );
 
-      setPostInfo(result);
+      setMessageDetails(currentMessage);
     }, [id]);
 
-    if (!postInfo) {
-      return;
-    }
+    if (!messageDetails) return null;
 
     return (
       <div>
-        <h3>{postInfo.name}</h3>
-        <p>{postInfo.content}</p>
+        <h4>{messageDetails.user}</h4>
+        <p>{messageDetails.text}</p>
       </div>
     );
   };
 
-  export default PostDetails;
+  export default MessageDetails;
   ```
 
-  Using the `useParams` hook, we retrieve the `id` of the post, Then We use the `useEffect` hook to find the post based on the `id`.
+- `<App/>` Component
 
-  We also check if the `postData` is null or undefined, and if so, we return without rendering anything, to avoid crashing the application.
-
-- `App` Component
-
-  We include the `Posts` & `PostDetails` to our routes.
+  To set up the routes for `Messages` and `MessageDetails`, we need to nest them within one another to ensure that the `Outlet` functions correctly.
 
   ```jsx
-  <Routes>
-    {/*  .... Other routes */}
-    <Route path="/posts" element={<Posts />} />
-    <Route path="/posts/:id" element={<PostDetails />} />
-    <Route path="*" element={<NotFound />} />
-  </Routes>
+  const App = () => {
+    return (
+      <div className="container">
+        <Navbar />
+        <Routes>
+          {/* Other Routes */}
+          <Route path="/posts" element={<Posts />} />
+          <Route path="/posts/:id" element={<PostDetails />} />
+          <Route path="/messages" element={<Messages />}>
+            <Route path="/messages/:id" element={<MessageDetails />} />
+          </Route>
+          {/* Other Routes */}
+        </Routes>
+      </div>
+    );
+  };
   ```
 
-  - `/posts` path displays the list of posts using the Posts component.
-  - `/posts/:id` path displays individual post details using the `PostDetails` component, where `id` is the dynamic parameter.
+  - `/messages` is the parent route that contains the `Messages` component, while the nested route `:id` is for `MessageDetails`.
+  - The `Outlet` component in the Messages component allows for rendering nested content.
 
-- `Navbar` Component
-  Add the Posts link to our navbar component
+  It's important to note that we didn't place each route side by side, as we did for `Posts` and `PostDetails`, because these components do not utilize outlets, making nesting unnecessary.
+
+- `<Navbar/>` component
+
+  In the `Navbar` component we add the `/messages` link so that we can navigate to it.
 
   ```jsx
   const Navbar = () => {
     return (
       <nav>
         <ul>
-          {/* ... */}
-
+          {/* Other links */}
           <li>
-            <Link to="/posts">Posts</Link>
+            <Link to="/messages">Messages</Link>
           </li>
-
-          {/* ... */}
+          {/* Other links */}
         </ul>
       </nav>
     );
@@ -147,7 +132,6 @@ in this lesson we're going to create a page that displays a list of posts and al
 
 ## Usage
 
-1. Start your React application.
-2. Navigate to `/posts` to see the list of posts.
-3. Click on a post to view its details at `/posts/:id`.
-4. Access a non-existing route to see the `NotFound` component.
+- Start your React application.
+- Navigate to different parts of your application using the links provided in the Navbar.
+- Click on messages to view the list of messages and click on individual messages to see their details.

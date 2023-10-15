@@ -19,3 +19,21 @@ export const posts = [
     id: 3,
   },
 ];
+
+export const messages = [
+  {
+    id: 1,
+    user: "Jason",
+    text: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Assumenda, id?`,
+  },
+  {
+    id: 2,
+    user: "Bruce",
+    text: `Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae nihil, quidem quasi adipisci excepturi odit!`,
+  },
+  {
+    id: 3,
+    user: "Robin",
+    text: `Lorem ipsum, dolor sit amet consectetur adipisicing elit. Assumenda ipsum architecto facere beatae nobis pariatur amet vitae omnis obcaecati quidem!`,
+  },
+];
