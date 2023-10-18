@@ -30,6 +30,7 @@ in this lesson, We are going to create a messages page where each user's message
           {messages.map((message) => (
             <li
               className="message-item"
+              key={message.id}
               onClick={() => handleMessageClick(message.id)}
             >
               {message.user}
