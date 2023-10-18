@@ -1,137 +1,170 @@
-# React Router Outletsh Lesson
+# Restricted Routes
 
-React Router's outlets are a powerful feature that allows you to create nested routing structures, enabling you to define multiple levels of routes and render components at different levels of your application hierarchy. `Outlets` are primarily used in situations where you have a parent route that acts as a container for child routes.
-
-in this lesson, We are going to create a messages page where each user's message will be displayed on the same page, but each user's message will have its own distinct route.
+In this lesson, we will explore the concept of restricted routes using React Router. We will create a simple login page, and based on the user's login status, we will either grant or restrict access to the `posts` & `messages` routes.
 
 ## Components
 
-- `<Messages/>` Component
+- `Login` Component
 
-  The Messages component serves as a container for displaying a list of messages.
-
-  It uses the `Outlet` component to render nested routes.
+  The `Login` component is used to authenticate users. It includes a simple form where users can enter a password to log in.
 
   ```jsx
-  import { Outlet, useNavigate } from "react-router-dom";
-
-  import { messages } from "../data";
-
-  const Messages = () => {
-    const navigate = useNavigate();
-
-    const handleMessageClick = (id) => {
-      navigate(`/messages/${id}`);
+  const Login = ({ onLogin }) => {
+    const onSubmitHandler = (e) => {
+      e.preventDefault();
+      onLogin(e.target[0].value);
     };
 
     return (
-      <div className="messages-container">
-        <ul className="messages-list">
-          {messages.map((message) => (
-            <li
-              className="message-item"
-              onClick={() => handleMessageClick(message.id)}
-            >
-              {message.user}
+      <form className="login-form" onSubmit={onSubmitHandler}>
+        <span>Hint: Password is (1) :)</span>
+        <div>
+          <label>Password:</label>
+          <input type="password" placeholder="Password" />
+        </div>
+
+        <button type="submit">Submit</button>
+      </form>
+    );
+  };
+
+  export default Login;
+  ```
+
+  The component has a callback function ( `onLogin` ) which will be handled in the `App` component.
+
+- `Navbar` Component
+
+  The Navbar component is a navigation bar that dynamically displays links based on the user's login status.
+
+  - If the user is logged in, it shows links to Posts, Messages pages & a logout button.
+  - If the user is not logged in, it displays a Login link.
+
+    ```jsx
+    import { Link } from "react-router-dom";
+
+    const Navbar = ({ isLoggedIn, onLogOut }) => {
+      return (
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
             </li>
-          ))}
-        </ul>
 
-        <Outlet />
-      </div>
-    );
-  };
+            {isLoggedIn && (
+              <>
+                <li>
+                  <Link to="/posts">Posts</Link>
+                </li>
+                <li>
+                  <Link to="/messages">Messages</Link>
+                </li>
+              </>
+            )}
 
-  export default Messages;
-  ```
+            <li>
+              <Link to="/about">About Us</Link>
+            </li>
+            <li>
+              <Link to="/contact">Contact Us</Link>
+            </li>
 
-- `<MessageDetails/>` Component
+            {!isLoggedIn && (
+              <li>
+                <Link to="/login">Login</Link>
+              </li>
+            )}
 
-  The `MessageDetails` component displays the details of a specific message.
-
-  It uses the `useParams` hook to extract the message ID from the URL and fetches the corresponding message data.
-
-  ```jsx
-  import { useEffect, useState } from "react";
-  import { useParams } from "react-router-dom";
-
-  import { messages } from "../data";
-
-  const MessageDetails = () => {
-    const [messageDetails, setMessageDetails] = useState(null);
-    const { id } = useParams();
-
-    useEffect(() => {
-      const currentMessage = messages.find(
-        (message) => message.id === parseInt(id)
+            {isLoggedIn && <button onClick={onLogOut}>Logout</button>}
+          </ul>
+        </nav>
       );
+    };
 
-      setMessageDetails(currentMessage);
-    }, [id]);
+    export default Navbar;
+    ```
 
-    if (!messageDetails) return null;
+    The Two props used by the Navbar ( `isLoggedIn`, `OnLogOut` ) are passed from the `App` component.
 
-    return (
-      <div>
-        <h4>{messageDetails.user}</h4>
-        <p>{messageDetails.text}</p>
-      </div>
-    );
-  };
+- `App` Component
 
-  export default MessageDetails;
-  ```
-
-- `<App/>` Component
-
-  To set up the routes for `Messages` and `MessageDetails`, we need to nest them within one another to ensure that the `Outlet` functions correctly.
+  Inside the `App` component we will manage the user's login status and provide routing based on whether the user is logged in or not.
 
   ```jsx
   const App = () => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const navigate = useNavigate();
+
+    const handleLogin = (password) => {
+      if (password === "1") {
+        setIsLoggedIn(true);
+        navigate("/", { replace: true });
+      }
+    };
+
+    const handleLogout = () => {
+      setIsLoggedIn(false);
+      navigate("/");
+    };
+
     return (
       <div className="container">
-        <Navbar />
+        <Navbar isLoggedIn={isLoggedIn} onLogOut={handleLogout} />
+
         <Routes>
-          {/* Other Routes */}
-          <Route path="/posts" element={<Posts />} />
-          <Route path="/posts/:id" element={<PostDetails />} />
-          <Route path="/messages" element={<Messages />}>
-            <Route path="/messages/:id" element={<MessageDetails />} />
-          </Route>
-          {/* Other Routes */}
+          {/* ... */}
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          {/* ... */}
         </Routes>
       </div>
     );
   };
   ```
 
-  - `/messages` is the parent route that contains the `Messages` component, while the nested route `:id` is for `MessageDetails`.
-  - The `Outlet` component in the Messages component allows for rendering nested content.
+  - `handleLogin` will check if the password provided is correct and set `isLoggedIn` state to true, then it will navigate the user to the home page. The `replace` option used with the navigate hook is meant to replace the current url (in this case it's the `/login`) with the home route (`/`).
 
-  It's important to note that we didn't place each route side by side, as we did for `Posts` and `PostDetails`, because these components do not utilize outlets, making nesting unnecessary.
+  - `handleLogout` will set `isLoggedIn` state to false and navigate the user to the home page.
 
-- `<Navbar/>` component
-
-  In the `Navbar` component we add the `/messages` link so that we can navigate to it.
+  To restrict the routes, we use the `isLoggedIn` state with the ternary operator:
 
   ```jsx
-  const Navbar = () => {
+  const App = () => {
+    // ...
     return (
-      <nav>
-        <ul>
-          {/* Other links */}
-          <li>
-            <Link to="/messages">Messages</Link>
-          </li>
-          {/* Other links */}
-        </ul>
-      </nav>
+      <div className="container">
+        <Navbar isLoggedIn={isLoggedIn} onLogOut={handleLogout} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+
+          {isLoggedIn ? (
+            <>
+              <Route path="/posts" element={<Posts />} />
+              <Route path="/posts/:id" element={<PostDetails />} />
+              <Route path="/messages" element={<Messages />}>
+                <Route path="/messages/:id" element={<MessageDetails />} />
+              </Route>
+            </>
+          ) : (
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          )}
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
     );
   };
   ```
+
+  - If the user is logged in, the Posts and Messages routes are accessible, and the associated components are rendered.
+  - If the user is not logged in, the Login route is accessible, allowing users to log in.
+
+  The Routes component dynamically displays routes based on the user's login status. This ensures that unauthorized users cannot access certain routes.
 
 ## Usage
 
 - Start your React application.
 - Navigate to different parts of your application using the links provided in the Navbar.
-- Click on messages to view the list of messages and click on individual messages to see their details.
+- If you are not logged in, click the "Login" link and enter the correct password (Hint: Password is "1") to access restricted routes.
+- If you are logged in, access the Posts and Messages routes. Click "Logout" to log out and restrict access to these routes again.
