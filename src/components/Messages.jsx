@@ -15,6 +15,7 @@ const Messages = () => {
         {messages.map((message) => (
           <li
             className="message-item"
+            key={message.id}
             onClick={() => handleMessageClick(message.id)}
           >
             {message.user}
